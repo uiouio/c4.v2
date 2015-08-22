@@ -121,8 +121,7 @@
       <HintPath>..\CPTT.WinUI\Libraries\DevExpress.XtraEditors.v12.1.dll</HintPath>
     </Reference>
     <Reference Include="RexDataProtector">
-      <Name>RexDataProtector</Name>
-      <HintPath>..\CPTT.WinUI\bin\Debug\RexDataProtector.dll</HintPath>
+      <HintPath>..\CPTT.WinUI\Libraries\RexDataProtector.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

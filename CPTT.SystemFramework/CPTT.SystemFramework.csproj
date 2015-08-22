@@ -94,11 +94,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AjaxPro.JSON">
-      <HintPath>..\CPTT.WinUI\bin\Debug\AjaxPro.JSON.dll</HintPath>
+      <HintPath>..\CPTT.WinUI\Libraries\AjaxPro.JSON.dll</HintPath>
     </Reference>
-    <Reference Include="chuangzhiapi, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Users\Administrator\Desktop\chuangzhi_net\chuangzhi_net\bin\Debug\chuangzhiapi.dll</HintPath>
+    <Reference Include="chuangzhiapi">
+      <HintPath>..\CPTT.WinUI\Libraries\chuangzhiapi.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Configuration, Version=1.0.0.0, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
@@ -112,8 +111,7 @@
       <HintPath>C:\Users\Administrator\Desktop\Json60r3\Bin\Net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="RexDataProtector">
-      <Name>RexDataProtector</Name>
-      <HintPath>..\CPTT.WinUI\bin\Debug\RexDataProtector.dll</HintPath>
+      <HintPath>..\CPTT.WinUI\Libraries\RexDataProtector.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

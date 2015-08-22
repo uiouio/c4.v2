@@ -128,8 +128,7 @@
       <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
     </ProjectReference>
     <Reference Include="AppUpdater">
-      <Name>AppUpdater</Name>
-      <HintPath>bin\Debug\AppUpdater.dll</HintPath>
+      <HintPath>Libraries\AppUpdater.dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Data.v12.1, Version=12.1.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -177,8 +176,7 @@
       <HintPath>Libraries\Microsoft.Practices.EnterpriseLibrary.Data.dll</HintPath>
     </Reference>
     <Reference Include="RexDataProtector">
-      <Name>RexDataProtector</Name>
-      <HintPath>..\..\..\RexDataProtector\bin\Debug\RexDataProtector.dll</HintPath>
+      <HintPath>Libraries\RexDataProtector.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

@@ -149,12 +149,11 @@
       <Name>System.XML</Name>
     </Reference>
     <Reference Include="VBIDE">
-      <Name>VBIDE</Name>
-      <HintPath>..\VBIDE.dll</HintPath>
+      <HintPath>..\CPTT.WinUI\Libraries\VBIDE.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ZedGraph">
-      <Name>ZedGraph</Name>
-      <HintPath>bin\Debug\ZedGraph.dll</HintPath>
+      <HintPath>..\CPTT.WinUI\Libraries\ZedGraph.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
