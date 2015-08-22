@@ -1,0 +1,220 @@
+USE CTPPDB
+GO
+DECLARE @tableID BIGINT
+SELECT TOP 1 @tableID = [id] FROM dbo.sysobjects WHERE [id] = object_id('dbo.DownloadLog') AND OBJECTPROPERTY([id], N'IsUserTable') = 1
+IF NOT EXISTS(SELECT * FROM syscolumns WHERE [id] = @tableID AND [name]='type')
+BEGIN
+   ALTER TABLE DownloadLog ADD 
+   [type] [SMALLINT] NULL
+END
+GO
+UPDATE DownloadLog
+SET [type] =0
+WHERE [type] IS NULL
+
+GO
+
+ALTER PROCEDURE [dbo].[InsertDownloadStudentInfo]
+(
+	@getID			VARCHAR(50),
+	@getGrade		VARCHAR(2),
+	@getGradeName	VARCHAR(20),
+	@getGradeRemark	VARCHAR(10),
+	@getClass		VARCHAR(2),
+	@getClassName		VARCHAR(20),
+	@getName		VARCHAR(20),
+	@getNumber		VARCHAR(4),
+	@getBirthday		DATETIME,
+	@getGender		VARCHAR(2),
+	@getType		VARCHAR(4),
+	@getEnterDate		DATETIME,
+	@getLeftSchool	BIT,
+	@rowsAffected		INT OUTPUT
+)
+AS
+DECLARE	@gradeInfo	VARCHAR(2)
+DECLARE	@classInfo	VARCHAR(2)
+DECLARE @stuID		VARCHAR(50)
+SELECT	@gradeInfo = ( SELECT info_gradeNumber FROM Grade_Info WHERE info_gradeNumber = @getGrade )
+SELECT	@classInfo = ( SELECT info_classNumber FROM Class_Info WHERE info_classNumber = @getClass AND info_gradeNumber = @getGrade )
+IF ( @gradeInfo IS NULL )
+BEGIN
+	IF ( @getGradeName <> '' )
+	BEGIN
+		IF ( @getGradeRemark = '托班' OR @getGradeRemark = '小班' OR @getGradeRemark = '中班' OR @getGradeRemark = '大班' OR @getGradeRemark = '特色班' )
+		BEGIN
+			INSERT INTO 	Grade_Info
+			VALUES	( @getGrade , @getGradeName , @getGradeRemark )
+		END
+		ELSE
+		BEGIN
+			SET	@rowsAffected = -1
+			RETURN
+		END
+	END
+	ELSE
+	BEGIN
+		SET	@rowsAffected = -1
+		RETURN
+	END
+END 
+IF ( @classInfo IS NULL )
+BEGIN
+	INSERT INTO	Class_Info
+	VALUES	( @getClass , @getClassName , @getGrade , @getGrade+@getClass,NULL )
+END
+IF NOT EXISTS(SELECT * FROM Student_BasicInfo WHERE info_stuNumber = @getNumber AND info_stuHasLeftSchool = 0)
+BEGIN
+	INSERT INTO Student_BasicInfo
+	VALUES ( @getID,@getGrade,@getClass,@getNumber,@getName,@getGender,@getBirthday,0,@getType,@getEnterDate,NULL, 0)
+	INSERT INTO	Student_DetailInfo(info_stuBasicID,info_stuFamilyAddr,info_stuZipCode,info_stuEMailAddr)
+	VALUES ( @getID,NULL,NULL,NULL )
+	INSERT INTO	Student_ParentInfo ( info_stuBasicID,info_stuFatherLinkPhone )
+	VALUES( @getID,NULL )
+END
+ELSE
+BEGIN
+	SELECT @getID = info_stuID FROM Student_BasicInfo WHERE info_stuNumber = @getNumber
+
+	UPDATE Student_BasicInfo
+	SET info_stuName = @getName, info_stuNumber = @getNumber, info_stuGender = @getGender, info_stuBirthDay = @getBirthday, info_stuHasLeftSchool = @getLeftSchool, info_stuEntryStatus = @getType, info_stuEntryDate = @getEnterDate
+	WHERE info_stuID = @getID
+
+END
+SET	@rowsAffected = @@ROWCOUNT
+
+GO
+
+
+UPDATE DBVersion
+SET db_version='4.33.1.2'
+GO
+
+USE [CTPPDB]
+GO
+/****** Object:  Table [dbo].[GrowUpCheckReportDetail]    Script Date: 2014/12/7 22:06:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GrowUpCheckReportDetail]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[GrowUpCheckReportDetail](
+	[reportHistoryID] [int] NOT NULL,
+	[resultType] [int] NOT NULL,
+	[type] [int] NULL
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[GrowUpCheckReportHistory]    Script Date: 2014/12/7 22:06:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GrowUpCheckReportHistory]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[GrowUpCheckReportHistory](
+	[idx] [int] IDENTITY(1,1) NOT NULL,
+	[gradeName] [nvarchar](100) NOT NULL,
+	[className] [nvarchar](100) NOT NULL,
+	[referrerID] [nvarchar](100) NOT NULL,
+	[stuNumber] [int] NOT NULL,
+	[stuName] [nvarchar](100) NOT NULL,
+	[recordTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_GrowUpCheckReportHistory] PRIMARY KEY CLUSTERED 
+(
+	[idx] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[GrowUpReportDetail]    Script Date: 2014/12/7 22:06:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GrowUpReportDetail]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[GrowUpReportDetail](
+	[reportHistoryID] [int] NOT NULL,
+	[category] [nvarchar](100) NOT NULL,
+	[item] [nvarchar](100) NULL,
+	[content] [nvarchar](500) NULL,
+	[picUrl] [nvarchar](255) NULL
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[GrowUpReportHistory]    Script Date: 2014/12/7 22:06:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GrowUpReportHistory]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[GrowUpReportHistory](
+	[idx] [int] IDENTITY(1,1) NOT NULL,
+	[gradeName] [nvarchar](100) NOT NULL,
+	[className] [nvarchar](100) NOT NULL,
+	[referrerID] [nvarchar](100) NOT NULL,
+	[stuNumber] [int] NOT NULL,
+	[stuName] [nvarchar](100) NOT NULL,
+	[recorderName] [nvarchar](100) NOT NULL,
+	[type] [int] NOT NULL,
+	[recordTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_GrowUpReportHistory] PRIMARY KEY CLUSTERED 
+(
+	[idx] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Index [IX_GrowUpCheckReportDetail]    Script Date: 2014/12/7 22:06:42 ******/
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[GrowUpCheckReportDetail]') AND name = N'IX_GrowUpCheckReportDetail')
+CREATE NONCLUSTERED INDEX [IX_GrowUpCheckReportDetail] ON [dbo].[GrowUpCheckReportDetail]
+(
+	[reportHistoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_GrowUpReportDetail]    Script Date: 2014/12/7 22:06:42 ******/
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[GrowUpReportDetail]') AND name = N'IX_GrowUpReportDetail')
+CREATE NONCLUSTERED INDEX [IX_GrowUpReportDetail] ON [dbo].[GrowUpReportDetail]
+(
+	[reportHistoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+ IF NOT EXISTS(SELECT 1 FROM syscolumns WHERE id = object_id('DownloadLog') AND name = 'tag')
+ BEGIN
+	ALTER TABLE DownloadLog ADD tag VARCHAR(50) NULL
+ END
+ GO
+IF NOT EXISTS (SELECT * FROM dbo.sysindexes WHERE name = N'IX_DownloadLog_tag' and id = object_id(N'DownloadLog'))
+BEGIN
+	CREATE NONCLUSTERED INDEX IX_DownloadLog_tag ON [dbo].[DownloadLog]
+	(
+		[tag] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+END
+GO
+
+DECLARE @tableID1 BIGINT
+SELECT TOP 1 @tableID1 = [id] FROM dbo.sysobjects WHERE [id] = object_id('dbo.GrowUpReportDetail') AND OBJECTPROPERTY([id], N'IsUserTable') = 1
+IF NOT EXISTS(SELECT * FROM syscolumns WHERE [id] = @tableID1 AND [name]='rawUrl')
+BEGIN
+   ALTER TABLE GrowUpReportDetail ADD 
+   [rawUrl] [NVARCHAR](255) NULL
+END
+GO
+
+ALTER TABLE [dbo].[GrowUpReportDetail] ALTER COLUMN [category] NVARCHAR(500)
+GO
+ALTER TABLE [dbo].[GrowUpReportDetail] ALTER COLUMN [item] NVARCHAR(500)
+GO
+ALTER TABLE [dbo].[GrowUpReportDetail] ALTER COLUMN [content] NVARCHAR(MAX)
+GO
+ALTER TABLE [dbo].[GrowUpReportDetail] ALTER COLUMN [picUrl] NVARCHAR(255)
+GO
+ALTER TABLE [dbo].[GrowUpReportDetail] ALTER COLUMN [rawUrl] NVARCHAR(255)
+GO
+
+
